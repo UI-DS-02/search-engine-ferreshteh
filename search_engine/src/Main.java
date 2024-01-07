@@ -1,47 +1,61 @@
 import java.io.*;
-import java.util.regex.Matcher;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class Main {
-    public static void main(String[] args) {
-
-        try {
-            File inputDirectory = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData");
-            File outputDirectory = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData");
-            Document document=new Document(inputDirectory);
-
-            if (inputDirectory.exists() && inputDirectory.isDirectory()) {
-                for (File inputFile : inputDirectory.listFiles()) {
-                    File outputFile = new File(outputDirectory, inputFile.getName());
-                   document.editDocuments(inputFile, outputFile);
-                }
-            } else {
-                System.out.println("The specified input directory does not exist or is not a directory.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) throws IOException {
+        File inputDirectory = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData");
+        File out = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData2");
+        File[] files = inputDirectory.listFiles();
+        File[] outs = out.listFiles();
+        Document document = new Document(files, outs);
+        InvertedIndex invertedIndex=new InvertedIndex();
+        invertedIndex.addDocument(document);
     }
-
 }
 
 class Document {
-    private String fileName;
-    private String content;
+    private String[] strings;
+    public Document(File[] files, File[] out) throws IOException {
 
-    public Document(File file) {
-        this.fileName = file.getName();
-        this.content = readContent(file);
+        if (files != null) {
+            strings=new String[files.length];
+            for (int i = 0; i < files.length; i++) {
+                editDocuments(files[i], out[i]);
+            }
+            for(int i=0;i<out.length;i++){
+                assert strings != null;
+                strings[i]= readContent(out[i]);
+            }
+        }
     }
+    public String[] getStrings() {
+        return strings;
+    }
+    void editDocuments(File inputFile, File outputFile) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String editedLine = removePunctuationAndSpaces(line);
+                writer.write(editedLine);
+                writer.newLine();
+            }
+        }
+    }
+    String removePunctuationAndSpaces(String input) {
+        String cleaned = input.toLowerCase();
+        cleaned = Pattern.compile("[^a-zA-Z0-9\\s]").matcher(cleaned).replaceAll("");
 
+        // Split the words and remove extra spaces
+        cleaned = cleaned.trim().replaceAll("\\s+", " ");
+
+        return cleaned;
+    }
     private String readContent(File file) {
         StringBuilder content = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -55,33 +69,6 @@ class Document {
         }
         return content.toString();
     }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getContent() {
-        return content;
-    }
-      void editDocuments(File inputFile, File outputFile) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String editedLine = removePunctuationAndSpaces(line);
-                writer.write(editedLine);
-                writer.newLine();
-            }
-        }
-    }
-
-      String removePunctuationAndSpaces(String text) {
-        String regex = "\\P{L}+";
-        Pattern pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
-        Matcher matcher = pattern.matcher(text);
-        String result = ((Matcher) matcher).replaceAll(" ");
-        return result.trim();
-    }
 }
 
 class InvertedIndex {
@@ -92,12 +79,12 @@ class InvertedIndex {
     }
 
     public void addDocument(Document document) {
-        String[] words = document.getContent().split("\\s+");
+        String[] words = document.getStrings();
         for (String word : words) {
             if (!index.containsKey(word)) {
                 index.put(word, new HashSet<>());
             }
-            index.get(word).add(document.getFileName());
+           // index.get(word).add(document.getStrings());
         }
     }
 

@@ -10,6 +10,29 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            File inputDirectory = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData");
+            File outputDirectory = new File("C:\\Users\\NA\\sakhtemanDade\\gitHub\\search-engine-ferreshteh\\search_engine\\EnglishData");
+            Document document=new Document(inputDirectory);
+
+            if (inputDirectory.exists() && inputDirectory.isDirectory()) {
+                for (File inputFile : inputDirectory.listFiles()) {
+                    File outputFile = new File(outputDirectory, inputFile.getName());
+                   document.editDocuments(inputFile, outputFile);
+                }
+            } else {
+                System.out.println("The specified input directory does not exist or is not a directory.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+
 class Document {
     private String fileName;
     private String content;
@@ -40,6 +63,25 @@ class Document {
     public String getContent() {
         return content;
     }
+      void editDocuments(File inputFile, File outputFile) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String editedLine = removePunctuationAndSpaces(line);
+                writer.write(editedLine);
+                writer.newLine();
+            }
+        }
+    }
+
+      String removePunctuationAndSpaces(String text) {
+        String regex = "\\P{L}+";
+        Pattern pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
+        Matcher matcher = pattern.matcher(text);
+        String result = ((Matcher) matcher).replaceAll(" ");
+        return result.trim();
+    }
 }
 
 class InvertedIndex {
@@ -59,10 +101,6 @@ class InvertedIndex {
         }
     }
 
-    public void createInvertedIndex() {
-        // The index has already been created while adding documents
-    }
-
     public Set<String> search(String query) {
         if (index.containsKey(query)) {
             return index.get(query);
@@ -70,23 +108,5 @@ class InvertedIndex {
             return new HashSet<>();
         }
     }
-    private static void editDocuments(File inputFile, File outputFile) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String editedLine = removePunctuationAndSpaces(line);
-                writer.write(editedLine);
-                writer.newLine();
-            }
-        }
-    }
 
-    private static String removePunctuationAndSpaces(String text) {
-        String regex = "\\P{L}+";
-        Pattern pattern = Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
-        Matcher matcher = pattern.matcher(text);
-        String result = ((Matcher) matcher).replaceAll(" ");
-        return result.trim();
-    }
 }

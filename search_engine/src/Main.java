@@ -16,7 +16,7 @@ public class Main {
         InvertedIndex invertedIndex = new InvertedIndex();
         invertedIndex.addDocument(document);
         int input = 0;
-        while (input != 10) {
+        while (input != 1) {
             Scanner sc = new Scanner(System.in);
             System.out.println("enter words");
             String function = sc.nextLine();
@@ -31,23 +31,37 @@ public class Main {
             int index3 = 0;
             for (int i = 0; i < words.length; i++) {
                 if (words[i].charAt(0) == '+') {
+                    words[i]=words[i].toLowerCase();
+                    words[i] = words[i].replace("+", "");
                     or[index2] = words[i];
                     index2++;
                 } else if (words[i].charAt(0) == '-') {
+                    words[i]=words[i].toLowerCase();
+                    words[i] = words[i].replace("-", "");
                     Not[index3] = words[i];
                     index3++;
                 } else if (Character.isLetter(words[i].charAt(0))) {
+                    words[i]=words[i].toLowerCase();
                     And[index1] = words[i];
                     index1++;
                 }
             }
-            Set<String> set = invertedIndex.search_1(And);
-           // Set<String> set2=invertedIndex.search_2(or);
-           // Set<String>set3=invertedIndex.new_search(Not);
-            for (String sets : set) {
+            //-------------------------------------------------------
+
+            Set<String> set1 = invertedIndex.search_1(And);
+
+            Set<String> set2 = invertedIndex.search_2(or);
+
+            Set<String> set3 = invertedIndex.search_3(Not);
+
+            //-----------------------------------------------------------
+
+            set1 = invertedIndex.And(set1, set2);
+            set1=invertedIndex.Not(set1,set3);
+
+            for (String sets : set1) {
                 System.out.println(sets);
             }
-
             input++;
         }
     }
@@ -99,7 +113,7 @@ class Document {
 
     String removePunctuationAndSpaces(String input) {
         String cleaned = input.toLowerCase();
-        cleaned = Pattern.compile("[^a-zA-Z0-9\\s]").matcher(cleaned).replaceAll("");
+        cleaned = Pattern.compile("[^a-zA-Z0-9\\s]").matcher(cleaned).replaceAll(" ");
 
         // Split the words and remove extra spaces
         cleaned = cleaned.trim().replaceAll("\\s+", " ");
@@ -159,47 +173,70 @@ class InvertedIndex {
             if (i == 0) {
                 if (index.containsKey(query[i])) {
                     result.setVisit(true);
-                    result= index.get(query[i]);
+                    result = index.get(query[i]);
                 }
             } else if (index.containsKey(query[i])) {
-                Set<String> result1=index.get(query[i]);
-                result=contains(result,result1);
-                    result.add(index.get(query[i]).toString());
+                Set<String> result1 = index.get(query[i]);
+                result = And(result, result1);
+                result.add(index.get(query[i]).toString());
             }
         }
         return result;
 
     }
-    public Set<String> contains(Set<String>result,Set<String>set2){
-        ArrayList<String>array1=result.getSet();
-        ArrayList<String>array2=set2.getSet();
-       array1.retainAll(array2);
-       return result;
+
+    public Set<String> And(Set<String> result, Set<String> set2) {
+        ArrayList<String> array1 = result.getSet();
+        ArrayList<String> array2 = set2.getSet();
+        array1.retainAll(array2);
+        return result;
     }
 
 
     public Set<String> search_2(String[] query) {
-        Set resultSet = new Set<>();
+        Set<String> resultSet = new Set<>();
         for (int i = 0; i < query.length; i++) {
-            if(i==0){
-                if(index.containsKey(query[i])){
-                    resultSet=index.get(query[i]);
+            if (i == 0) {
+                if (index.containsKey(query[i])) {
+                    resultSet = index.get(query[i]);
                 }
-            }
-            else if (index.containsKey(query[i])) {
-                i++;
-            } else {
-
+            } else if (index.containsKey(query[i])) {
+                Set<String> set2 = index.get(query[i]);
+                Or(resultSet, set2);
             }
         }
         return resultSet;
     }
-    public Set<String>Or(Set<String>result,Set<String>set2){
-        ArrayList<String>array1=result.getSet();
+
+    public Set<String> Or(Set<String> result, Set<String> set2) {
+        ArrayList<String> array1 = result.getSet();
         array1.removeIf(set2::contains);
-        array1.retainAll(set2.getSet());
+        array1.addAll(set2.getSet());
         return result;
     }
+
+    public Set<String> search_3(String[] query) {
+        Set<String> result = new Set<>();
+        for (int i = 0; i < query.length; i++) {
+            if (i == 0) {
+                if (index.containsKey(query[i])) {
+                    result = index.get(query[i]);
+                }
+            } else if (index.containsKey(query[i])) {
+                Set<String> set2 = index.get(query[i]);
+                result=And(result,set2);
+                result.add(index.get(query[i]).toString());
+            }
+        }
+        return result;
+    }
+
+    public Set<String> Not(Set<String> result,Set<String>set2) {
+        ArrayList<String> result_Arr = result.getSet();
+         result_Arr.removeIf(set2::contains);
+        return result;
+    }
+
 
     public Set<String> new_search(String query) {
         Set<String> result = new Set<>();
@@ -230,6 +267,7 @@ class InvertedIndex {
             }
             return closestWord;
         }
+
         public static int distance(String s1, String s2) {
             int len1 = s1.length();
             int len2 = s2.length();
@@ -318,10 +356,11 @@ class Set<T> implements Iterable<T> {
     public int hashCode() {
         return set.hashCode();
     }
-    public String toString(){
-        StringBuilder result= new StringBuilder();
-        for(int i=0;i<size();i++){
-         result.append(set.get(i).toString()).append(" ");
+
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < size(); i++) {
+            result.append(set.get(i).toString()).append(" ");
         }
         return result.toString();
     }

@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a03cc7f5-6c24-40e3-916d-3c372565ab2c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Document.class" beforeDir="false" afterPath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Document.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/InvertedIndex$SpellCheck.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/InvertedIndex.class" beforeDir="false" afterPath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/InvertedIndex.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Set.class" beforeDir="false" afterPath="$PROJECT_DIR$/../out/production/search-engine-ferreshteh/Set.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../search_engine/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../search_engine/src/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +32,8 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true"
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "C:/Users/NA/sakhtemanDade/gitHub/search-engine-ferreshteh/search_engine"
   }
 }]]></component>
   <component name="RecentsManager">

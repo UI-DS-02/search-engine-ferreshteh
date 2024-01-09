@@ -16,56 +16,109 @@ public class Main {
         InvertedIndex invertedIndex = new InvertedIndex();
         invertedIndex.addDocument(document);
         int input = 0;
-        while (input != 1) {
+        while (input != 3) {
+            System.out.println("1- searching word");
+            System.out.println("2- progressed searching ");
             Scanner sc = new Scanner(System.in);
-            System.out.println("enter words");
-            String function = sc.nextLine();
+            input = sc.nextInt();
+            sc.nextLine();
+            if (input == 1) {
 
-            String[] words = function.split(" ");
-            String[] And = new String[words.length];
-            String[] or = new String[words.length];
-            String[] Not = new String[words.length];
+                System.out.println("enter words");
+                String function = sc.nextLine();
 
-            int index1 = 0;
-            int index2 = 0;
-            int index3 = 0;
-            for (int i = 0; i < words.length; i++) {
-                if (words[i].charAt(0) == '+') {
-                    words[i]=words[i].toLowerCase();
-                    words[i] = words[i].replace("+", "");
-                    or[index2] = words[i];
-                    index2++;
-                } else if (words[i].charAt(0) == '-') {
-                    words[i]=words[i].toLowerCase();
-                    words[i] = words[i].replace("-", "");
-                    Not[index3] = words[i];
-                    index3++;
-                } else if (Character.isLetter(words[i].charAt(0))) {
-                    words[i]=words[i].toLowerCase();
-                    And[index1] = words[i];
-                    index1++;
+                String[] words = function.split(" ");
+                String[] And = new String[words.length];
+                String[] or = new String[words.length];
+                String[] Not = new String[words.length];
+
+                int index1 = 0;
+                int index2 = 0;
+                int index3 = 0;
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].charAt(0) == '+') {
+                        words[i] = words[i].toLowerCase();
+                        words[i] = words[i].replace("+", "");
+                        or[index2] = words[i];
+                        index2++;
+                    } else if (words[i].charAt(0) == '-') {
+                        words[i] = words[i].toLowerCase();
+                        words[i] = words[i].replace("-", "");
+                        Not[index3] = words[i];
+                        index3++;
+                    } else if (Character.isLetter(words[i].charAt(0))) {
+                        words[i] = words[i].toLowerCase();
+                        And[index1] = words[i];
+                        index1++;
+                    }
+                }
+
+                //-------------------------------------------------------
+
+                Set<String> set1 = invertedIndex.search_1(And);
+
+                Set<String> set2 = invertedIndex.search_2(or);
+
+                Set<String> set3 = invertedIndex.search_3(Not);
+                //-----------------------------------------------------------
+               if(set1.size()>=1 && set2.size()==0 && set3.size()==0){
+                   for (String set:set1){
+                       System.out.println(set);
+                   }
+               }
+               else if(set1.size()>=1&&set2.size()>=1&&set3.size()>=1){
+                   set1=invertedIndex.And(set1,set2);
+                   set1=invertedIndex.Not(set1,set3);
+                   for (String set:set1){
+                       System.out.println(set);
+                   }
+               }
+               else if(set2.size()>=1 && set1.size()==0 && set3.size()==0){
+                   for (String set:set2){
+                       System.out.println(set);
+                   }
+               }
+               else if(set3.size()>=1 && set1.size()==0 && set2.size()==0){
+                   for (String set:set3){
+                       System.out.println(set);
+                   }
+               }
+               else if(set1.size()>=1&& set2.size()>=1){
+                   set1=invertedIndex.And(set1,set2);
+                   for (String set:set1){
+                       System.out.println(set);
+                   }
+               }
+               else if(set1.size()>=1&&set3.size()>=1){
+                   set1=invertedIndex.Not(set1,set3);
+                   for (String set:set1){
+                       System.out.println(set);
+                   }
+
+               }
+               else if(set2.size()>=1&&set3.size()>=1){
+                   set2=invertedIndex.Not(set2,set3);
+                   for (String set:set2){
+                       System.out.println(set);
+                   }
+
+               }
+                set1=null;
+                set2=null;
+                set3=null;
+
+            } else if (input == 2) {
+                Set <String>set=new Set<String>();
+                String function=sc.nextLine();
+                set=invertedIndex.new_search(function);
+                for(String sets:set){
+                    System.out.println(sets);
                 }
             }
-            //-------------------------------------------------------
-
-            Set<String> set1 = invertedIndex.search_1(And);
-
-            Set<String> set2 = invertedIndex.search_2(or);
-
-            Set<String> set3 = invertedIndex.search_3(Not);
-
-            //-----------------------------------------------------------
-
-            set1 = invertedIndex.And(set1, set2);
-            set1=invertedIndex.Not(set1,set3);
-
-            for (String sets : set1) {
-                System.out.println(sets);
-            }
-            input++;
         }
     }
 }
+
 
 class Document {
     private String[] strings;
@@ -137,6 +190,12 @@ class Document {
 }
 
 class InvertedIndex {
+    private boolean new_search = false;
+
+    public boolean isNew_search() {
+        return new_search;
+    }
+
     private Map<String, Set<String>> index;
 
     public InvertedIndex() {
@@ -178,7 +237,7 @@ class InvertedIndex {
             } else if (index.containsKey(query[i])) {
                 Set<String> result1 = index.get(query[i]);
                 result = And(result, result1);
-                result.add(index.get(query[i]).toString());
+                //result.add(index.get(query[i]).toString());
             }
         }
         return result;
@@ -224,16 +283,16 @@ class InvertedIndex {
                 }
             } else if (index.containsKey(query[i])) {
                 Set<String> set2 = index.get(query[i]);
-                result=And(result,set2);
+                result = And(result, set2);
                 result.add(index.get(query[i]).toString());
             }
         }
         return result;
     }
 
-    public Set<String> Not(Set<String> result,Set<String>set2) {
+    public Set<String> Not(Set<String> result, Set<String> set2) {
         ArrayList<String> result_Arr = result.getSet();
-         result_Arr.removeIf(set2::contains);
+        result_Arr.removeIf(set2::contains);
         return result;
     }
 
@@ -245,61 +304,75 @@ class InvertedIndex {
         }
         if (result.size() == 0) {
             String[] keys = index.keySet().toArray(new String[0]);
-            String bestMatch = SpellCheck.getClosestWord(query, keys);
-            if (bestMatch != null) {
-                result.add(index.get(bestMatch).toString());
+            StringBuilder bestMatch = getClosestWord(query, keys);
+            String[] new_keys = String.valueOf(bestMatch).split(" ");
+            if (new_keys.length >= 1) {
+                new_search = true;
+            }
+            for (int i = 0; i < new_keys.length; i++) {
+                query = new_keys[i];
+
+                if (i == 0) {
+                    if (index.containsKey(query)) {
+                        result = index.get(query);
+                        result.add(new_keys[i]);
+                        result.add("    ");
+                    }
+                } else if (index.containsKey(query)) {
+                    Set<String> result1 = index.get(query);
+                    result = Or(result, result1);
+                    result.add(index.get(query).toString());
+                    result.add(new_keys[i]);
+                    result.add("    ");
+                }
             }
         }
         return result;
     }
 
     //--------------------------
-    public static class SpellCheck {
-        public static String getClosestWord(String word, String[] dictionary) {
-            int maxDist = Integer.MIN_VALUE;
-            String closestWord = null;
-            for (String dicWord : dictionary) {
-                int dist = distance(word, dicWord);
-                if (dist > maxDist) {
-                    maxDist = dist;
-                    closestWord = dicWord;
-                }
+    public StringBuilder getClosestWord(String word, String[] dictionary) {
+        StringBuilder closestWord = new StringBuilder();
+        boolean same;
+        for (String dicWord : dictionary) {
+            same = distance(word, dicWord);
+            if (same) {
+                closestWord.append(dicWord).append(" ");
             }
-            return closestWord;
         }
-
-        public static int distance(String s1, String s2) {
-            int len1 = s1.length();
-            int len2 = s2.length();
-            int[] p = new int[len2 + 1];
-            int[] d = new int[len2 + 1];
-            int i, j, min, cost;
-
-            for (i = 0; i <= len2; i++) {
-                p[i] = i;
-            }
-
-            for (i = 1; i <= len1; i++) {
-                char ch1 = s1.charAt(i - 1);
-                min = Integer.MAX_VALUE;
-
-                for (j = 1; j <= len2; j++) {
-                    char ch2 = s2.charAt(j - 1);
-                    cost = ch1 == ch2 ? 0 : 1;
-                    int t = min(min, p[j - 1] + cost, d[j - 1] + cost);
-                    d[j] = p[j];
-                    p[j] = t;
-                    min = t;
-                }
-            }
-
-            return p[len2];
-        }
-
-        public static int min(int a, int b, int c) {
-            return Math.min(a, Math.min(b, c));
-        }
+        return closestWord;
     }
+
+    public boolean distance(String main, String s2) {
+        int len1 = main.length();
+        int len2 = s2.length();
+
+        int i, cost = 0;
+        if (Math.abs(len1 - len2) >= 2)
+            return false;
+        int lenght = Math.min(len1, len2);
+        String bigger_word;
+        String smaller_word;
+        if (len2 >= len1) {
+            bigger_word = s2;
+            smaller_word = main;
+        } else {
+            bigger_word = main;
+            smaller_word = s2;
+        }
+        for (i = 0; i < lenght; i++) {
+            char s = smaller_word.charAt(i);
+            char b = bigger_word.charAt(i);
+            if (s != b) {
+                cost++;
+            }
+        }
+        cost += Math.max(len2, len1) - i;
+        if (cost <= 1)
+            return true;
+        return false;
+    }
+
 }
 
 

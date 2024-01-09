@@ -1,13 +1,11 @@
 import search_engine.Document;
 import search_engine.InvertedIndex;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
+import search_engine.StopWordRemoval;
 import set.Set;
 
 public class Main {
@@ -19,11 +17,8 @@ public class Main {
         File[] outs = out.listFiles();
         Document document = new Document(files, outs);
 
-        String data = new String(Files.readAllBytes(Paths.get("shakespeare-hamlet.txt")));
-        data = data.toLowerCase();
-        List<String> stopwords = Files.readAllLines(Paths.get("english_stopwords.txt"));
-        List stopwordsRegex = Collections.singletonList(stopwords.stream().collect(Collectors.joining("|", "\\b(", ")\\b\\s?")));
-
+        //----------------------------------
+        //---------------------------------
         InvertedIndex invertedIndex = new InvertedIndex();
         invertedIndex.addDocument(document);
         int input = 0;
@@ -38,14 +33,11 @@ public class Main {
                 System.out.println("enter words");
                 String function = sc.nextLine();
 
-                String[] first_split = function.split(" ");
-                StringBuilder without_stopWord = new StringBuilder();
-                for (String word : first_split) {
-                    if (!stopwords.contains(word)) {
-                        without_stopWord.append(word).append(" ");
-                    }
-                }
-                String[] words = String.valueOf(without_stopWord).split(" ");
+
+                StopWordRemoval stop = new StopWordRemoval();
+                String[] words = function.split(" ");
+                words = stop.removeStopWord(words);
+
 
                 String[] And = new String[words.length];
                 String[] or = new String[words.length];
@@ -131,5 +123,6 @@ public class Main {
         }
     }
 }
+
 //--------------------------------
 
